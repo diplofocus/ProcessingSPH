@@ -4,14 +4,20 @@ float H8 = (H2 * H2) * (H2 * H2);
 float g = 9.81;
 float dt = 5e-4;
 float scale = 800;
+float D = 0.75;
 
 float rho0 = 1000;
 float k = 1e3;
 float mu = 0.1;
 
 //int nBorder = 400;
-int nParticles = 30000;
+int nParticles = 2000;
 int n = nParticles; //+ nBorder;
+
+int XMIN = 0;
+int XMAX = 2;
+int YMIN = 0;
+int YMAX = 1;
 
 
 Particle[] particles;

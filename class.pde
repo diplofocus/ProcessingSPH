@@ -105,27 +105,39 @@ void Integrate()
 
 void Constrain()
 {
-  float damp = 0.25;
   for (int i = 0; i < n; i++)
   {
-    if (particles[i].x > 2)
+    if (particles[i].x < XMIN)
     {
-      Reflect(i, 0, 2);
+      particles[i].x = 0;
+      particles[i].vx *= -D;
+      particles[i].vhx *= -D;
+      particles[i].x -= particles[i].vx * (1-D) * dt;
     }
 
-    if (particles[i].x < 0)
+    if (particles[i].x > XMAX)
     {
-      Reflect(i, 0, 0);
+      particles[i].x = XMAX;
+      particles[i].vx *= -D;
+      particles[i].vhx *= -D;
+      particles[i].x -= particles[i].vx * (1-D) * dt;
     }
 
-    if (particles[i].y > 1)
+    if (particles[i].y < YMIN)
     {
-      Reflect(i, 4, 1);
+      particles[i].y = 0;
+      particles[i].vy *= -D;
+      particles[i].vhy *= -D;
+      particles[i].y -= particles[i].vy * (1-D) * dt;
     }
 
-    if (particles[i].y < 0)
+    if (particles[i].y > YMAX)
     {
-      Reflect(i, 2, 3);
+      particles[i].y = YMAX;
+      //println("aaaaa");
+      particles[i].vy *= -D;
+      particles[i].vhy *= -D;
+      particles[i].y -= particles[i].vy * (1-D) * dt;
     }
   }
 }
@@ -148,42 +160,6 @@ void NormalizeMass()
   }
 }
 
-void Reflect(int w, float barrier, int c)
-{
-  if (particles[w].vx == 0 && particles[w].vy == 0)
-    return;
-
-  switch(c)
-  {
-  case 0:
-    {
-      particles[w].vx *= -0.5;
-      particles[w].vhx *= -0.5;
-    }
-    break;
-
-  case 1:
-    {
-      particles[w].vy *= -0.5;
-      particles[w].vhy *= -0.5;
-    }
-    break;
-
-  case 2:
-    {
-      particles[w].vx *= -0.5;
-      particles[w].vhx *= -0.5;
-    }
-    break;
-
-  case 3:
-    {
-      particles[w].vy *= -0.5;
-      particles[w].vhy *= -0.5;
-    }
-    break;
-  }
-}
 
 void LeapfrogStart()
 {
@@ -218,3 +194,67 @@ void Leapfrog()
     Constrain();
   }
 }
+
+//void Reflect(int w, float barrier, int c)
+//{
+//  if (particles[w].vx == 0 && particles[w].vy == 0)
+//    return;
+
+//  switch(c)
+//  {
+//  case 0:
+//    {
+//      particles[w].vx *= -0.5;
+//      particles[w].vhx *= -0.5;
+//    }
+//    break;
+
+//  case 1:
+//    {
+//      particles[w].vy *= -0.5;
+//      particles[w].vhy *= -0.5;
+//    }
+//    break;
+
+//  case 2:
+//    {
+//      particles[w].vx *= -0.5;
+//      particles[w].vhx *= -0.5;
+//    }
+//    break;
+
+//  case 3:
+//    {
+//      particles[w].vy *= -0.5;
+//      particles[w].vhy *= -0.5;
+//    }
+//    break;
+//  }
+//}
+
+//void Constrain()
+//{
+//  float damp = 0.25;
+//  for (int i = 0; i < n; i++)
+//  {
+//    if (particles[i].x > 2)
+//    {
+//      Reflect(i, 0, 2);
+//    }
+
+//    if (particles[i].x < 0)
+//    {
+//      Reflect(i, 0, 0);
+//    }
+
+//    if (particles[i].y > 1)
+//    {
+//      Reflect(i, 4, 1);
+//    }
+
+//    if (particles[i].y < 0)
+//    {
+//      Reflect(i, 2, 3);
+//    }
+//  }
+//}
