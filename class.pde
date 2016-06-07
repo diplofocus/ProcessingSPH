@@ -1,6 +1,7 @@
-class Particle
+class Particle //<>//
 {
   float x, y, vx, vy, ax, ay, vhx, vhy;
+  double[] r;
   float m, h;
   float rho;
   float p;
@@ -8,6 +9,7 @@ class Particle
 
   Particle()
   {
+    r = new double[2];
     m = 1;
     h = H;
     x = random(0, 1);
@@ -19,6 +21,8 @@ class Particle
     vhx = 0;
     vhy = 0;
     isBorder = 0;
+    r[0] = x;
+    r[1] = y;
   }
 
   void Draw()
@@ -35,19 +39,36 @@ void ComputeDensity()
   for (int i = 0; i < n; i++)
   {
     particles[i].rho += 4*particles[i].m / 3.1415926 / H2;
-    for (int j = i+1; j < n; j++)
+
+    for (Object o : tree.nearest(particles[i].r, 32)) 
     {
-      float dx = particles[i].x - particles[j].x;
-      float dy = particles[i].y - particles[j].y;
+      Particle p2 = (Particle) o;
+
+      float dx = particles[i].x - p2.x;
+      float dy = particles[i].y - p2.y;
       float dr2 = dx*dx + dy*dy;
       float z = H2 - dr2;
       if (z > 0)
       {
         float rho_ij = C*z*z*z;
         particles[i].rho += rho_ij;
-        particles[j].rho += rho_ij;
+
       }
     }
+
+    //for (int j = i+1; j < n; j++)
+    //{
+    //  float dx = particles[i].x - particles[j].x;
+    //  float dy = particles[i].y - particles[j].y;
+    //  float dr2 = dx*dx + dy*dy;
+    //  float z = H2 - dr2;
+    //  if (z > 0)
+    //  {
+    //    float rho_ij = C*z*z*z;
+    //    particles[i].rho += rho_ij;
+    //    particles[j].rho += rho_ij;
+    //  }
+    //}
   }
 }
 
@@ -65,26 +86,47 @@ void ComputeAcceleration()
 
   for (int i = 0; i < n; i++)
   {
-    for (int j = i+1; j < n; j++)
+
+    for (Object o : tree.nearest(particles[i].r, 32)) 
     {
-      float dx = particles[i].x - particles[j].x;
-      float dy = particles[i].y - particles[j].y;
+      Particle p2 = (Particle) o;
+      float dx = particles[i].x - p2.x;
+      float dy = particles[i].y - p2.y;
       float dr2 = dx*dx + dy*dy;
       if (dr2 < H2)
       {
         float q = sqrt(dr2)/H;
         float u = 1-q;
-        float w0 = C0 * u/particles[i].rho/particles[j].rho;
-        float wp = w0 * Cp * (particles[i].rho + particles[j].rho - 2*rho0) * u/q;
+        float w0 = C0 * u/particles[i].rho/p2.rho;
+        float wp = w0 * Cp * (particles[i].rho + p2.rho - 2*rho0) * u/q;
         float wv = w0 * Cv;
-        float dvx = particles[i].vx - particles[j].vx;
-        float dvy = particles[i].vy - particles[j].vy;
+        float dvx = particles[i].vx - p2.vx;
+        float dvy = particles[i].vy - p2.vy;
         particles[i].ax += (wp*dx + wv*dvx);
         particles[i].ay += (wp*dy + wv*dvy);
-        particles[j].ax -= (wp*dx + wv*dvx);
-        particles[j].ay -= (wp*dy + wv*dvy);
       }
     }
+
+    //for (int j = i+1; j < n; j++)
+    //{
+    //  float dx = particles[i].x - particles[j].x;
+    //  float dy = particles[i].y - particles[j].y;
+    //  float dr2 = dx*dx + dy*dy;
+    //  if (dr2 < H2)
+    //  {
+    //    float q = sqrt(dr2)/H;
+    //    float u = 1-q;
+    //    float w0 = C0 * u/particles[i].rho/particles[j].rho;
+    //    float wp = w0 * Cp * (particles[i].rho + particles[j].rho - 2*rho0) * u/q;
+    //    float wv = w0 * Cv;
+    //    float dvx = particles[i].vx - particles[j].vx;
+    //    float dvy = particles[i].vy - particles[j].vy;
+    //    particles[i].ax += (wp*dx + wv*dvx);
+    //    particles[i].ay += (wp*dy + wv*dvy);
+    //    particles[j].ax -= (wp*dx + wv*dvx);
+    //    particles[j].ay -= (wp*dy + wv*dvy);
+    //  }
+    //}
   }
 }
 
@@ -97,8 +139,14 @@ void Integrate()
       particles[i].vx += particles[i].ax*dt;
       particles[i].vy += particles[i].ay*dt;
 
+      tree.delete(particles[i].r);
+
       particles[i].x += particles[i].vx*dt;
       particles[i].y += particles[i].vy*dt;
+
+      particles[i].r[0] = particles[i].x;
+      particles[i].r[1] = particles[i].y;
+      tree.insert(particles[i].r, particles[i]);
     }
   }
 }

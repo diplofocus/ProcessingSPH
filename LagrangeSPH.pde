@@ -1,3 +1,7 @@
+import net.sf.javaml.core.kdtree.KDTree;
+
+KDTree tree;
+
 float H = 5e-2;
 float H2 = H*H;
 float H8 = (H2 * H2) * (H2 * H2);
@@ -8,10 +12,10 @@ float D = 0.75;
 
 float rho0 = 1000;
 float k = 1e3;
-float mu = 0.1;
+float mu = 10;
 
 //int nBorder = 400;
-int nParticles = 2000;
+int nParticles = 1000;
 int n = nParticles; //+ nBorder;
 
 int XMIN = 0;
@@ -24,6 +28,7 @@ Particle[] particles;
 
 void setup()
 {
+  tree = new KDTree(2);
   rectMode(CENTER);
   size(1600, 800);
   particles = new Particle[n];
@@ -49,13 +54,19 @@ void setup()
   //  }
   //}
 
-
+  for (Particle p : particles)
+  {
+    p.r[0] = p.x;
+    p.r[1] = p.y;
+    tree.insert(p.r, p);
+  }
   NormalizeMass();
   LeapfrogStart();
 }
 
 void draw()
 {
+
   //println(random(0, 1));
   background(0);
   ComputeDensity();
